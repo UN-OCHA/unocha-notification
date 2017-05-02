@@ -1,0 +1,6 @@
+<html>
+
+<br>
+<p style="font-size: 10px; color: gray"> This message sent as part of UN OCHA's unified notification service from the Humanitarian ID application. Click here to unsubscribe. (NOTE CURRENTLY DOESN'T DO ANYTHING) </p>
+
+</html>
