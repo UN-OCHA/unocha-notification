@@ -164,7 +164,8 @@ def get_fts_contents(country, from_datetime, to_datetime):
 	countryISO3 = pycountry.countries.get(name=country).alpha_3
 	year = from_datetime.year
 	fts_request = "https://api.hpc.tools/v1/public/fts/flow?countryISO3=" + countryISO3 + "&year=" + str(year)
-	fts_data = requests.request("GET", fts_request, auth=('mit_csail', 'xvn468sfhk')).json()
+	# TODO update with authentication information
+	fts_data = requests.request("GET", fts_request, auth=('', '')).json()
 	file = open("fts_contents.txt", "a")
 	wrote_header = False
 	for flow in fts_data["data"]["flows"]:
