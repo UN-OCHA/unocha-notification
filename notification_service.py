@@ -308,10 +308,8 @@ def send_notifications():
 	for user in get_users_opted_in(get_hid_json_web_token()):
 		numArticles = 0
 		# clear files to start over
-		open("hr_info_contents.txt", "w").close()
-		open("reliefweb_contents.txt", "w").close()
-		open("fts_contents.txt", "w").close()
-		open("hdx_contents.txt", "w").close()
+		for filename in output_files:
+			open(filename, "w").close()
 		open("all_contents.txt", "w").close()
 		for country in get_hid_checkin_countries_for(user, get_hid_json_web_token()):
 			numArticles += get_contents_last_24_hrs(country)
@@ -324,10 +322,8 @@ def send_notifications():
 def send_urgent_notifications():
 	for user in get_users_opted_in(get_hid_json_web_token()):
 		# clear files to start over
-		open("hr_info_contents.txt", "w").close()
-		open("reliefweb_contents.txt", "w").close()
-		open("fts_contents.txt", "w").close()
-		open("hdx_contents.txt", "w").close()
+		for filename in output_files:
+			open(filename, "w").close()
 		open("all_contents.txt", "w").close()
 		numArticles = 0
 		for country in get_hid_checkin_countries_for(user, get_hid_json_web_token()):
