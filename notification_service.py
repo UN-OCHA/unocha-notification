@@ -15,8 +15,8 @@ from email.MIMEImage import MIMEImage
 from hdx.configuration import Configuration
 from hdx.data.dataset import Dataset
 
-TWILIO_ACCOUNT_SID = "AC649a25d4cac0c75ac60d2b5f93b691e2"
-TWILIO_AUTH_TOKEN = "c7becef2bc413d1ac84190f3d577107d"
+TWILIO_ACCOUNT_SID = # TODO account sid goes here
+TWILIO_AUTH_TOKEN = # TODO account auth token goes here
 
 output_files = ["hr_info_contents.txt", "reliefweb_contents.txt", "fts_contents.txt", "hdx_contents.txt"]
 
@@ -24,11 +24,10 @@ output_files = ["hr_info_contents.txt", "reliefweb_contents.txt", "fts_contents.
 def get_hid_json_web_token():
 	hid_request_url = "https://api2.dev.humanitarian.id/api/v2/jsonwebtoken"
 	hid_request_body = {
-		"email": "jeaniep@mit.edu",
-		"password": "1dzireroxmisox1"
+		"email": # TODO developer email,
+		"password": # TODO developer password
 	}
 	result = requests.post(hid_request_url, hid_request_body).json()
-	# print result
 	return result["token"]
 
 # returns list of countries that a specific user is checked in to
@@ -42,18 +41,22 @@ def get_hid_checkin_countries_for(userid, webtoken):
 			countries.append(operation['name'])
 	return countries
 
+# returns a list of Humanitarian ID user IDs of the users opted in
 def get_users_opted_in(webtoken):
-	# for now, just return my user ID
-	return ["58b46c193d0ba000db4265e8"]
+	# TODO, should use API call from humanitarian ID returning list of opted-in users
+	# for testing, can set it up to return a singleton list of a developer's user id
 
+# returns the email associated with the userid from Humanitarian ID
 def get_email(userid, webtoken):
 	hid_request_url = "https://api2.dev.humanitarian.id/api/v2/user/" + userid
 	headers = {"authorization": "Bearer " + webtoken}
 	hid_data = requests.get(hid_request_url, headers=headers).json()
 	return hid_data["email"]
 
+# uses bitly to create a short version of long_url
 def generate_short_url(long_url):
-	bitly_request = "https://api-ssl.bitly.com/v3/shorten?access_token=ee07dac50de0be1d2f4fc5983dcffae85d09ba4f&longUrl=" + long_url
+	accessToken = # TODO bitly access token
+	bitly_request = "https://api-ssl.bitly.com/v3/shorten?access_token=" + accessToken + "&longUrl=" + long_url
 	bitly_data = requests.request("GET", bitly_request).json()
 	return bitly_data["data"]["url"]
 
@@ -208,6 +211,8 @@ def get_fts_contents(country, from_datetime, to_datetime):
 	file.close()
 	return numArticles
 
+# gets information on a specific country from hdx posted after from_datetime and
+# before to_datetime
 def get_hdx_contents(country, from_datetime, to_datetime):
 	numArticles = 0
 	config = Configuration.create(hdx_site='prod', hdx_read_only=True)
@@ -266,7 +271,7 @@ def combine_contents(filenames):
 def send_sendgrid_mail(contents_path, subject, who_from, to):
 	server = smtplib.SMTP('smtp.sendgrid.net', 587)
 	server.starttls()
-	server.login("jeaniepearson", "1dzireroxmisox1")
+	server.login() # TODO developer email, password are parameters
 
 	fp = open(contents_path, 'rb')
 	body = fp.read()
@@ -290,11 +295,14 @@ def send_sendgrid_mail(contents_path, subject, who_from, to):
 	server.quit()
 	print "sent mail"
 
+# sends a single twilio text message
 def sendTwilioSMS(report_type, country, source, link):
 	client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-	message = client.sms.messages.create(to="5037075388", from_="9717173083",
+	# TODO to field is user's phone number, from field is developer Twilio phone number
+	message = client.sms.messages.create(to="", from_="",
 		body="ALERT - New " + report_type + " for " + country + " on " + source + " - " + link + " reply STOP to stop.")
 
+# the standard notification sending method
 def send_notifications():
 	for user in get_users_opted_in(get_hid_json_web_token()):
 		numArticles = 0
@@ -308,8 +316,10 @@ def send_notifications():
 			numArticles += get_contents_last_24_hrs(country)
 		if numArticles != 0:
 			combine_contents(output_files)
-			send_sendgrid_mail("all_contents.txt", "Humanitarian Updates", "jeaniepearson27@gmail.com", get_email(user, get_hid_json_web_token()))
+			# TODO 3rd parameter is email the content should be from
+			send_sendgrid_mail("all_contents.txt", "Humanitarian Updates", "", get_email(user, get_hid_json_web_token()))
 
+# sends only "urgent" notifications
 def send_urgent_notifications():
 	for user in get_users_opted_in(get_hid_json_web_token()):
 		# clear files to start over
@@ -342,10 +352,9 @@ def send_urgent_notifications():
 
 			if numArticles != 0:
 				combine_contents(output_files)
-				send_sendgrid_mail("all_contents.txt", "Urgent Humanitarian Updates", "jeaniepearson27@gmail.com", get_email(user, get_hid_json_web_token()))
+				# TODO 3rd parameter is email the content should be from
+				send_sendgrid_mail("all_contents.txt", "Urgent Humanitarian Updates", "", get_email(user, get_hid_json_web_token()))
 
 				return numArticles
 
 send_notifications()
-# send_urgent_notifications()
-# get_hdx_contents("Uganda", 0, 0)
